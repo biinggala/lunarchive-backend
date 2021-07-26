@@ -2,9 +2,8 @@
   "name": "tripper",
   "version": "1.0.0",
   "description": "",
-
   "scripts": {
-    "dev": ""
+    "dev": "nodemon --exec babel-node server"
   },
   "repository": {
     "type": "git",
@@ -16,5 +15,16 @@
   "bugs": {
     "url": "https://github.com/biinggala/lunarchive-backend/issues"
   },
-  "homepage": "https://github.com/biinggala/lunarchive-backend#readme"
+  "homepage": "https://github.com/biinggala/lunarchive-backend#readme",
+  "dependencies": {
+    "apollo-server": "^3.0.2",
+    "graphql": "^15.5.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.8",
+    "@babel/node": "^7.14.7",
+    "@babel/preset-env": "^7.14.8",
+    "nodemon": "^2.0.12",
+    "prisma": "^2.27.0"
+  }
 }
