@@ -1,0 +1,30 @@
+import client from "../../client";
+
+export default {
+  Query: {
+    seeFollowers: async (_, { username, lastId }) => {
+      const checkUser = await client.user.findUnique({
+        where: { username },
+        select: { id: true },
+      });
+      if (!checkUser) {
+        return {
+          ok: false,
+          error: "User not found.",
+        };
+      }
+      const followers = await client.user
+        .findUnique({ where: { username } })
+        .followers({
+          take: 10,
+          skip: lastId ? 1 : 0,
+          ...(lastId && { cursor: { id: lastId } }),
+        });
+
+      return {
+        ok: true,
+        followers,
+      };
+    },
+  },
+};
