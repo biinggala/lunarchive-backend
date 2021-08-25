@@ -24,5 +24,13 @@ export default {
       });
       return Boolean(checkFollowing);
     },
+    photos: ({ id }, { lastId }) =>
+      client.user
+        .findUnique({ where: { id } })
+        .photos({
+          take: 15,
+          skip: lastId ? 1 : 0,
+          ...(lastId && { cursor: { id: lastId } }),
+        }),
   },
 };

@@ -20,8 +20,9 @@
   },
   "homepage": "https://github.com/biinggala/lunarchive-backend#readme",
   "dependencies": {
-    "@prisma/client": "^2.27.0",
+    "@prisma/client": "^2.29.1",
     "apollo-server": "^3.0.2",
+    "aws-sdk": "^2.974.0",
     "bcrypt": "^5.0.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
@@ -36,10 +37,14 @@
     "@babel/node": "^7.14.7",
     "@babel/preset-env": "^7.14.8",
     "nodemon": "^2.0.12",
-    "prisma": "^2.27.0"
+    "prettier-plugin-prisma": "^2.29.1",
+    "prisma": "^2.29.1"
   },
   "resolutions": {
     "fs-capacitor": "^6.2.0",
     "graphql-upload": "^11.0.0"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
   }
 }

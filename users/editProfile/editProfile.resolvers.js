@@ -2,6 +2,7 @@ import { createWriteStream } from "fs";
 import bcrypt from "bcrypt";
 import client from "../../client";
 import { protectedResolver } from "../users.utils";
+import { uploadToS3 } from "../../shared/shared.utils";
 
 const resolverFn = async (
   _,
@@ -10,14 +11,15 @@ const resolverFn = async (
 ) => {
   let avatarUrl = null;
   if (avatar) {
-    const { filename, createReadStream } = await avatar;
+    avatarUrl = await uploadToS3(avatar, loggedInUser.id, "avatars");
+    /* const { filename, createReadStream } = await avatar;
     const readStream = createReadStream();
     const randomName = `${loggedInUser.id}-${Date.now()}-${filename}`;
     const writeStream = createWriteStream(
       process.cwd() + "/uploads/" + randomName
     );
     readStream.pipe(writeStream);
-    avatarUrl = `http://localhost:4000/static/${randomName}`;
+    avatarUrl = `http://localhost:4000/static/${randomName}`; */
   }
 
   let uglyPassword = null;
