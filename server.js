@@ -1,4 +1,8 @@
 require("dotenv").config();
+import { createServer } from "http";
+import { execute, subscribe } from "graphql";
+import { SubscriptionServer } from "subscriptions-transport-ws";
+import { makeExecutableSchema } from "@graphql-tools/schema";
 import express from "express";
 import logger from "morgan";
 import { ApolloServer } from "apollo-server-express";
@@ -9,29 +13,52 @@ import { graphqlUploadExpress } from "graphql-upload";
 
 const PORT = process.env.PORT;
 
-const app = express();
 const startServer = async () => {
-  const apollo = new ApolloServer({
-    resolvers,
+  const app = express();
+  const httpServer = createServer(app);
+  const schema = makeExecutableSchema({
     typeDefs,
-    context: async ({ req }) => {
-      return {
-        loggedInUser: await getUser(req.headers.token),
-      };
-    },
-    plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+    resolvers,
   });
 
-  await apollo.start();
+  const subscriptionServer = SubscriptionServer.create(
+    { schema, execute, subscribe },
+    { server: httpServer }
+  );
+
+  const server = new ApolloServer({
+    schema,
+    context: async ({ req }) => {
+      if (req) {
+        return {
+          loggedInUser: await getUser(req.headers.token),
+        };
+      }
+    },
+    plugins: [
+      ApolloServerPluginLandingPageGraphQLPlayground(),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
+    ],
+  });
+
+  await server.start();
 
   app.use(logger("tiny"));
   app.use(graphqlUploadExpress());
+  server.applyMiddleware({ app });
   app.use("/static", express.static("uploads"));
-  apollo.applyMiddleware({ app });
 
-  await new Promise((r) => app.listen({ port: PORT }, r)).then(() =>
+  httpServer.listen(PORT, () =>
     console.log(
-      `🚀 Server is running on http://localhost:${PORT}${apollo.graphqlPath} ✅`
+      `🚀 Server is running on http://localhost:${PORT}${server.graphqlPath} ✅`
     )
   );
 };
