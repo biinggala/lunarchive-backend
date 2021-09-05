@@ -22,16 +22,30 @@ const startServer = async () => {
   });
 
   const subscriptionServer = SubscriptionServer.create(
-    { schema, execute, subscribe },
+    {
+      schema,
+      execute,
+      subscribe,
+      onConnect: async ({ token }, webSocket, context) => {
+        if (!token) {
+          throw new Error("You can't listen.");
+        }
+        console.log("Connected!");
+        return { loggedInUser: await getUser(token) };
+      },
+      onDisconnect(webSocket, context) {
+        console.log("Disconnected!");
+      },
+    },
     { server: httpServer }
-  );
+  ); //subscription 서버를 만듭니다.
 
   const server = new ApolloServer({
     schema,
-    context: async ({ req }) => {
-      if (req) {
+    context: async (ctx) => {
+      if (ctx.req) {
         return {
-          loggedInUser: await getUser(req.headers.token),
+          loggedInUser: await getUser(ctx.req.headers.token),
         };
       }
     },
